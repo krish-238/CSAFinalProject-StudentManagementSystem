@@ -5,9 +5,9 @@
  * APCSA - Final Project - Student Management System - SystemEntity Abstract Class
  * 05/28/2025
  *
- * The SchoolEntity class is the abstract superclass for entities in the student management system,
- * defining common attributes like ID and name. It provides shared methods for all entities,
- * reducing code duplication across students and other objects.
+ * The SchoolEntity class is the abstract base class for entities in the student management system,
+ * defining common attributes like ID and name. It provides common methods for all entities,
+ * reducing code duplication across students and other entities.
  */
 
 /**
@@ -19,6 +19,9 @@ public abstract class SchoolEntity {
     private boolean isActive;
 
     public SchoolEntity(String id, String name) {
+        if (id == null || id.isEmpty() || name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("ID and name cannot be null or empty");
+        }
         this.id = id;
         this.name = name;
         this.isActive = true;

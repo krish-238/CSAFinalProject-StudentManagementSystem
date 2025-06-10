@@ -20,6 +20,10 @@ public class Class {
     private ArrayList<RegularStudent> students;
 
     public Class(String classCode, String className, String teacher, int period) {
+        if (classCode == null || classCode.isEmpty() || className == null || className.isEmpty() ||
+                teacher == null || teacher.isEmpty() || period < 1) {
+            throw new IllegalArgumentException("Invalid class parameters");
+        }
         this.classCode = classCode;
         this.className = className;
         this.teacher = teacher;
@@ -48,12 +52,7 @@ public class Class {
      * @param student the student to remove
      */
     public void removeStudent(RegularStudent student) {
-        for (int i = 0; i < this.students.size(); i++) {
-            if (this.students.get(i).getId().equals(student.getId())) {
-                this.students.remove(i);
-                break;
-            }
-        }
+        students.removeIf(s -> s.getId().equals(student.getId()));
     }
 
     /**
@@ -61,7 +60,7 @@ public class Class {
      * @return string containing class details
      */
     public String getClassInfo() {
-        String info = this.className + " (" + this.classCode + "), Teacher: " + this.teacher + ", Period: " + this.period;
+        String info = this.className + " (" + this.classCode + "), Teacher: " + this.getTeacher() + ", Period: " + this.period;
         return info;
     }
 

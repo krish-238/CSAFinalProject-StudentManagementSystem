@@ -5,9 +5,9 @@
  * APCSA - Final Project - Student Management System - Grade Interface
  * 05/30/2025
  *
- * The Grade interface standardizes grade-related operations in the student management system,
- * requiring methods to assign, retrieve, and evaluate grades. It ensures consistent grade handling
- * for all classes managing student performance.
+ * The Grade interface defines grade-related operations in the student management system,
+ * requiring methods to assign, retrieve, and evaluate grades. It ensures consistent grade
+ * handling for all classes managing student performance.
  */
 
 /**

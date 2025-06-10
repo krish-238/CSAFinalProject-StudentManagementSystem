@@ -18,7 +18,7 @@ public class GradeRecord implements Grade {
     public GradeRecord(String studentID, String classCode, double grade) {
         this.studentID = studentID;
         this.classCode = classCode;
-        this.grade = grade;
+        this.grade = (grade >= 0.0 && grade <= 100.0) ? grade : 0.0;
     }
 
     /**
@@ -44,15 +44,11 @@ public class GradeRecord implements Grade {
      * @return true if passing, false otherwise
      */
     public boolean isPassing() {
-        if (this.grade >= 70.0) {
-            return true;
-        } else {
-            return false;
-        }
+        return this.grade >= 70.0;
     }
 
     // Getters
-    public String getStudentID() {
+    public String getID() {
         return this.studentID;
     }
 

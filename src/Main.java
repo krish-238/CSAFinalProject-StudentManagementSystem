@@ -15,6 +15,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
@@ -38,19 +39,18 @@ public class Main {
         manager.incrementEnrollments();
 
         // Assign grades
-        manager.assignGradeToStudent("S001", "MATH101", 85.0);
-        manager.assignGradeToStudent("S002", "MATH101", 90.0);
+        manager.assignGrade("S001", "MATH101", 85.0);
+        manager.assignGrade("S002", "MATH101", 90.0);
 
         // Create a sample CSV file for testing AutoCurver
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("grades.csv"));
-            writer.write("S001,MATH101,85.0");
-            writer.newLine();
-            writer.write("S002,MATH101,90.0");
-            writer.newLine();
+            writer.write("S001,MATH101,85.0\n");
+            writer.write("S002,MATH101,90.0\n");
             writer.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println("Error creating CSV: " + e.getMessage());
+            return;
         }
 
         // Curve grades (square root curve)

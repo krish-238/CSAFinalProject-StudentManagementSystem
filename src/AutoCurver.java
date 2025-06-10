@@ -15,6 +15,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.io.IOException;
 
 public class AutoCurver {
     private String csvFilePath;
@@ -22,6 +23,9 @@ public class AutoCurver {
     private double curveValue;
 
     public AutoCurver(String csvFilePath, String curveType, double curveValue) {
+        if (curveType.equals("stddev") && (curveValue < 0.0 || curveValue > 100.0)) {
+            throw new IllegalArgumentException("Invalid curve value for stddev: " + curveValue);
+        }
         this.csvFilePath = csvFilePath;
         this.curveType = curveType;
         this.curveValue = curveValue;
@@ -38,17 +42,29 @@ public class AutoCurver {
             String line = reader.readLine();
             while (line != null) {
                 String[] parts = line.split(",");
-                if (parts.length == 3) {
-                    String studentID = parts[0];
-                    String classCode = parts[1];
-                    double grade = Double.parseDouble(parts[2]);
+                if (parts.length != 3 || parts[0] == null || parts[1] == null || parts[2] == null) {
+                    System.out.println("Invalid CSV line (null or incorrect format): " + line);
+                    line = reader.readLine();
+                    continue;
+                }
+                try {
+                    String studentID = parts[0].trim();
+                    String classCode = parts[1].trim();
+                    double grade = Double.parseDouble(parts[2].trim());
+                    if (grade < 0.0 || grade > 100.0) {
+                        System.out.println("Invalid grade value in line: " + line);
+                        line = reader.readLine();
+                        continue;
+                    }
                     GradeRecord record = new GradeRecord(studentID, classCode, grade);
                     records.add(record);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid grade format in line: " + line);
                 }
                 line = reader.readLine();
             }
             reader.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println("Error reading CSV: " + e.getMessage());
         }
         return records;
@@ -59,6 +75,10 @@ public class AutoCurver {
      * @param records the GradeRecord objects to curve
      */
     public void applyCurve(ArrayList<GradeRecord> records) {
+        if (records.isEmpty()) {
+            System.out.println("Error: No grades to curve");
+            return;
+        }
         if (this.curveType.equals("sqrt")) {
             for (int i = 0; i < records.size(); i++) {
                 double grade = records.get(i).getGrade();
@@ -144,19 +164,8 @@ public class AutoCurver {
             }
         } else if (this.curveType.equals("ratio")) {
             // Sort grades in descending order
-            ArrayList<GradeRecord> sortedRecords = new ArrayList<GradeRecord>();
-            for (int i = 0; i < records.size(); i++) {
-                sortedRecords.add(records.get(i));
-            }
-            for (int i = 0; i < sortedRecords.size(); i++) {
-                for (int j = i + 1; j < sortedRecords.size(); j++) {
-                    if (sortedRecords.get(j).getGrade() > sortedRecords.get(i).getGrade()) {
-                        GradeRecord temp = sortedRecords.get(i);
-                        sortedRecords.set(i, sortedRecords.get(j));
-                        sortedRecords.set(j, temp);
-                    }
-                }
-            }
+            ArrayList<GradeRecord> sortedRecords = new ArrayList<GradeRecord>(records);
+            sortedRecords.sort((a, b) -> Double.compare(b.getGrade(), a.getGrade()));
             int totalStudents = sortedRecords.size();
             int aCount = (int) (totalStudents * 0.10); // 10% A
             int bCount = (int) (totalStudents * 0.20); // 20% B
@@ -188,6 +197,8 @@ public class AutoCurver {
                 if (newGrade > 100.0) newGrade = 100.0;
                 records.get(i).assignGrade(newGrade);
             }
+        } else {
+            throw new IllegalArgumentException("Invalid curve type: " + this.curveType);
         }
     }
 
@@ -204,7 +215,7 @@ public class AutoCurver {
                 writer.newLine();
             }
             writer.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println("Error writing CSV: " + e.getMessage());
         }
     }

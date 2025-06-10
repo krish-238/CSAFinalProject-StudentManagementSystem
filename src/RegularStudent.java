@@ -32,14 +32,8 @@ public class RegularStudent extends SchoolEntity {
      * @param course the class to enroll in
      */
     public void enrollClass(Class course) {
-        boolean alreadyEnrolled = false;
-        for (int i = 0; i < this.classes.size(); i++) {
-            if (this.classes.get(i).getClassCode().equals(course.getClassCode())) {
-                alreadyEnrolled = true;
-            }
-        }
-        if (!alreadyEnrolled) {
-            this.classes.add(course);
+        if (course != null && !classes.stream().anyMatch(c -> c.getClassCode().equals(course.getClassCode()))) {
+            classes.add(course);
             course.addStudent(this);
         }
     }
@@ -58,7 +52,7 @@ public class RegularStudent extends SchoolEntity {
     public String getSchedule() {
         String schedule = "Schedule for " + this.getName() + ":\n";
         for (int i = 0; i < this.classes.size(); i++) {
-            schedule = schedule + this.classes.get(i).getClassInfo() + "\n";
+            schedule += this.classes.get(i).getClassInfo() + "\n";
         }
         return schedule;
     }
@@ -68,8 +62,8 @@ public class RegularStudent extends SchoolEntity {
         return this.gradeLevel;
     }
 
-    public double getGpa() {
-        return this.gpa;
+    public double getGPA() {
+        return this.getGpa();
     }
 
     public void setGpa(double gpa) {

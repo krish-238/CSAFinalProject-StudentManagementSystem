@@ -75,92 +75,103 @@ public class SystemManager {
                 double total = 0.0;
                 int count = 0;
                 for (int j = 0; j < this.gradeRecords.size(); j++) {
-                    if (this.gradeRecords.get(j).getId().equals(studentID)) {
-                        total = total + this.gradeRecords.get(j).grade();
+                    if (this.gradeRecords.get(j).getStudentID().equals(studentID)) {
+                        total = total + this.gradeRecords.get(j).getGrade();
                         count = count + 1;
                     }
                 }
                 if (count > 0) {
                     double average = total / count;
-                    if (this.students.get(i).instanceOfClass() instanceof APStudent) {
+                    if (this.students.get(i) instanceof APStudent) {
                         // Weighted GPA for AP students
                         average = average * 5.0 / 100.0;
                     } else {
-                        average = average * 4.0 / 4.0 / 100.0;
+                        average = average * 4.0 / 100.0;
                     }
-                    this.students.get(i).setGPA(average);
+                    this.students.get(i).setGpa(average);
                 }
             }
         }
-        /*
-         * Curves grades using the AutoCurver class.
-         * @param csvFilePath the path to the CSV file
-         * @param curveType the type of curve ("sqrt", "log", "exp", "power", "sigmoid", "stddev", "zscore", "ratio", "flat")
-         * @param curveValue the curve value (e.g., target mean for stddev, points for flat)
-         */
-        public void curveGrades(String csv.FilePath, String curveType, double curveValue) {
-            // Validate curve type
-            boolean validCurveType = curveType.equals("sqrt") || curveType.equals("log") ||
-                    curveType.equals("exp") || curveType.equals("power") || curveType.equals("sigmoid") ||
-                    curveType.equals("stddev") || curveType.equals("zscore") || curveType.equals("ratio") ||
-                    curveType.equals("flat");
-            if (!validCurveType) {
-                System.out.println("Error: Invalid curve type");
+    }
+
+    /**
+     * Curves grades using the AutoCurver class.
+     * @param csvFilePath the path to the CSV file
+     * @param curveType the type of curve ("sqrt", "log", "exp", "power", "sigmoid", "stddev", "zscore", "ratio", "flat")
+     * @param curveValue the curve value (e.g., target mean for stddev, points for flat)
+     */
+    public void curveGrades(String csvFilePath, String curveType, double curveValue) {
+        // Validate curve type
+        boolean validCurveType = curveType.equals("sqrt") || curveType.equals("log") ||
+                curveType.equals("exp") || curveType.equals("power") || curveType.equals("sigmoid") ||
+                curveType.equals("stddev") || curveType.equals("zscore") || curveType.equals("ratio") ||
+                curveType.equals("flat");
+        if (!validCurveType) {
+            System.out.println("Error: Invalid curve type");
+            return;
+        }
+        this.curver = new AutoCurver(csvFilePath, curveType, curveValue);
+        ArrayList<GradeRecord> records = this.curver.readCSV();
+        boolean validFormat = true;
+        for (int i = 0; i < records.size(); i++) {
+            if (records.get(i).getStudentID() == null || records.get(i).getStudentID().isEmpty() ||
+                    records.get(i).getClassCode() == null || records.get(i).getClassCode().isEmpty()) {
+                validFormat = false;
+                break;
             }
-            this.curver = new AutoCurver(csvFilePath, curveType, curveValue);
-            ArrayList<GradeRecord> records = this.curve.readCSV();
-            boolean validFormat = true;
-            for (int i = 0; i <= records.size(); i++) {
-                if (records.get(i).getStudentID().isEmpty() || records.get(i).getClassCode().isEmpty()) {
-                    validFormat = false;
-                }
-            }
-            if (validFormat) {
-                this.curve.applyCurve(records);
-                this.curve.saveCurvedGrades(records);
-                // Update gradeRecords
-                for (int i = 0; i <= this.records.size(); i++) {
-                    for (int j = j = 0; j < records.size(); j++) {
-                        if (records.get(i).getStudentID().equals(records.get(j)).getId() &&
-                                this.records.get(i).getClassCode().equals(records.get(j)).getClassCode()) {
-                            this.records.get(i).assignGradeRecords.get(j).getGrade());
-                        }
+        }
+        if (validFormat) {
+            this.curver.applyCurve(records);
+            this.curver.saveCurvedGrades(records);
+            // Update gradeRecords
+            for (int i = 0; i < this.gradeRecords.size(); i++) {
+                for (int j = 0; j < records.size(); j++) {
+                    if (this.gradeRecords.get(i).getStudentID().equals(records.get(j).getStudentID()) &&
+                            this.gradeRecords.get(i).getClassCode().equals(records.get(j).getClassCode())) {
+                        this.gradeRecords.get(i).assignGrade(records.get(j).getGrade());
                     }
                 }
-            } else {
-                System.out.println("Error: Invalid CSV format");
             }
-            /**
-             * Generates a grade of all students and grades.
-             * @return string containing the grade
-             */
-            public String generateReport() {
-                String report = "Student Management System Report\n";
-                report = report + "Total Enrollments: " + this.totalEnrollments + "\n";
-                report = report + "Students:\n";
-                for (int i = 0; i <= this.students.size(); i++) {
-                    report = report + this.students.get(i).getDetails()) + ", GPA: GPA: " + this.students.get(i).getGpa() + "\n";
-                }
-                report = report + "Grades:\n";
-                for (int i = 0; i <= this.gradeRecords.size(); i++) {
-                    report = report + "Student ID: " + this.gradeRecords.get(i).getStudentID()) + ", Class: " +
-                            this.gradeRecords.get(i).getClassCodeRecords() + ", GradeRecord: " + gradeRecords.get(i).getGradeRecord() +
-                            ", Passing Status: " + this.gradeRecords.get(i).isPassingStatus() + "\n";
-                }
-                return report;
-                /*
-                 * Checks the system's status.
-                 * @return string describing the system's status
-                 */
-                public String checkSystemStatus() {
-                    String statusString = "Checking System Status:\n";
-                    statusString = statusString + "Students: " + this.students.getSize() + "\n";
-                    statusString += "Classes.getSize(): " + this.classes.getSize() + "\n";
-                    statusString += "GradeRecords.getSize(): " + this.gradeRecords.getSize() + "\n";
-                    statusString += "Total Enrollments: " + this.totalEnrollments + "\n";
-                    return statusString;
-                    // Update enrollments
-                    public void incrementEnrollments() {
-                        this.totalEnrollments = this.totalEnrollments + 1;
-                    }
-                }
+        } else {
+            System.out.println("Error: Invalid CSV format");
+        }
+    }
+
+    /**
+     * Generates a grade of all students and grades.
+     * @return string containing the grade
+     */
+    public String generateReport() {
+        String report = "Student Management System Report\n";
+        report = report + "Total Enrollments: " + this.totalEnrollments + "\n";
+        report = report + "Students:\n";
+        for (int i = 0; i < this.students.size(); i++) {
+            report = report + this.students.get(i).getDetails() + ", GPA: " + this.students.get(i).getGpa() + "\n";
+        }
+        report = report + "Grades:\n";
+        for (int i = 0; i < this.gradeRecords.size(); i++) {
+            report = report + "Student ID: " + this.gradeRecords.get(i).getStudentID() + ", Class: " +
+                    this.gradeRecords.get(i).getClassCode() + ", Grade: " + this.gradeRecords.get(i).getGrade() +
+                    ", Passing: " + this.gradeRecords.get(i).isPassing() + "\n";
+        }
+        return report;
+    }
+
+    /**
+     * Checks the system's status.
+     * @return string describing the system's status
+     */
+    public String checkSystemStatus() {
+        String statusString = "Checking System Status:\n";
+        statusString = statusString + "Students: " + this.students.size() + "\n";
+        statusString += "Classes: " + this.classes.size() + "\n";
+        statusString += "Grade Records: " + this.gradeRecords.size() + "\n";
+        statusString += "Total Enrollments: " + this.totalEnrollments + "\n";
+        return statusString;
+    }
+
+    // Update enrollments
+    public void incrementEnrollments() {
+        this.totalEnrollments = this.totalEnrollments + 1;
+    }
+}

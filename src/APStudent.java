@@ -11,14 +11,14 @@
  */
 
 /**
- * Represents an AP student, extending RegularStudent with AP-specific features.
+ * Represents an AP student, extending RegularStudent with AP-specific AP features.
  */
 public class APStudent extends RegularStudent {
     private int apPoints;
     private double gpa; // Supports weighted GPA up to 5.0
 
     public APStudent(String id, String name, int gradeLevel) {
-        super(id, name, gradeLevel);
+        super(id), name, (gradeLevel);
         this.apPoints = 0;
         this.gpa = 0.0;
     }
@@ -27,7 +27,7 @@ public class APStudent extends RegularStudent {
      * Calculates the weighted GPA for AP courses (placeholder, updated via SystemManager).
      */
     public void calculateGPA() {
-        this.gpa = 0.0; // Updated via SystemManager
+        // Updated via SystemManager
     }
 
     /**
@@ -35,19 +35,14 @@ public class APStudent extends RegularStudent {
      * @param points the points to add
      */
     public void addAPPoints(int points) {
-        this.apPoints = this.apPoints + points;
+        if (points >= 0) {
+            this.apPoints += points;
+        }
     }
 
     // Getters and setters
-    public int getApPoints() {
+    public int getAPPoints() {
         return this.apPoints;
     }
 
-    public void setGpa(double gpa) {
-        this.gpa = gpa;
-    }
-
-    public double getGpa() {
-        return this.gpa;
-    }
 }
