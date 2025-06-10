@@ -21,9 +21,9 @@ public class SystemManager {
     private AutoCurver curver;
 
     public SystemManager() {
-        this.students = new ArrayList<RegularStudent>();
-        this.classes = new ArrayList<Class>();
-        this.gradeRecords = new ArrayList<GradeRecord>();
+        this.students = new ArrayList<>();
+        this.classes = new ArrayList<>();
+        this.gradeRecords = new ArrayList<>();
         this.totalEnrollments = 0;
         this.curver = null;
     }
@@ -33,13 +33,7 @@ public class SystemManager {
      * @param student the student to add
      */
     public void addStudent(RegularStudent student) {
-        boolean exists = false;
-        for (int i = 0; i < this.students.size(); i++) {
-            if (this.students.get(i).getId().equals(student.getId())) {
-                exists = true;
-            }
-        }
-        if (!exists) {
+        if (student != null && students.stream().noneMatch(s -> s.getId().equals(student.getId()))) {
             this.students.add(student);
         }
     }
@@ -49,14 +43,23 @@ public class SystemManager {
      * @param course the class to add
      */
     public void addClass(Class course) {
-        boolean exists = false;
-        for (int i = 0; i < this.classes.size(); i++) {
-            if (this.classes.get(i).getClassCode().equals(course.getClassCode())) {
-                exists = true;
-            }
-        }
-        if (!exists) {
+        if (course != null && classes.stream().noneMatch(c -> c.getClassCode().equals(course.getClassCode()))) {
             this.classes.add(course);
+        }
+    }
+
+    /**
+     * Enrolls a student in a class and updates the total enrollment count.
+     * @param student The student to enroll.
+     * @param course The class to enroll the student in.
+     */
+    public void enrollStudent(RegularStudent student, Class course) {
+        if (student != null && course != null) {
+            // Check if student is already in the class to avoid duplicate enrollment counts
+            if (student.getClasses().stream().noneMatch(c -> c.getClassCode().equals(course.getClassCode()))) {
+                student.enrollClass(course);
+                this.totalEnrollments++;
+            }
         }
     }
 
@@ -67,29 +70,14 @@ public class SystemManager {
      * @param grade the grade to assign
      */
     public void assignGrade(String studentID, String classCode, double grade) {
-        GradeRecord record = new GradeRecord(studentID, classCode, grade);
-        this.gradeRecords.add(record);
-        // Update student's GPA
-        for (int i = 0; i < this.students.size(); i++) {
-            if (this.students.get(i).getId().equals(studentID)) {
-                double total = 0.0;
-                int count = 0;
-                for (int j = 0; j < this.gradeRecords.size(); j++) {
-                    if (this.gradeRecords.get(j).getStudentID().equals(studentID)) {
-                        total = total + this.gradeRecords.get(j).getGrade();
-                        count = count + 1;
-                    }
-                }
-                if (count > 0) {
-                    double average = total / count;
-                    if (this.students.get(i) instanceof APStudent) {
-                        // Weighted GPA for AP students
-                        average = average * 5.0 / 100.0;
-                    } else {
-                        average = average * 4.0 / 100.0;
-                    }
-                    this.students.get(i).setGpa(average);
-                }
+        // BUG FIX: Centralized GPA calculation and removed flawed logic.
+        gradeRecords.add(new GradeRecord(studentID, classCode, grade));
+
+        // After adding a grade, find the relevant student and trigger a GPA recalculation.
+        for (RegularStudent student : this.students) {
+            if (student.getId().equals(studentID)) {
+                student.calculateGPA(this.gradeRecords);
+                break; // Exit loop once student is found and updated
             }
         }
     }
@@ -101,60 +89,62 @@ public class SystemManager {
      * @param curveValue the curve value (e.g., target mean for stddev, points for flat)
      */
     public void curveGrades(String csvFilePath, String curveType, double curveValue) {
-        // Validate curve type
-        boolean validCurveType = curveType.equals("sqrt") || curveType.equals("log") ||
-                curveType.equals("exp") || curveType.equals("power") || curveType.equals("sigmoid") ||
-                curveType.equals("stddev") || curveType.equals("zscore") || curveType.equals("ratio") ||
-                curveType.equals("flat");
-        if (!validCurveType) {
-            System.out.println("Error: Invalid curve type");
+        this.curver = new AutoCurver(csvFilePath, curveType, curveValue);
+        ArrayList<GradeRecord> curvedRecords = this.curver.readCSV();
+
+        if (curvedRecords == null || curvedRecords.isEmpty()) {
+            System.err.println("Error: No valid records to curve from " + csvFilePath);
             return;
         }
-        this.curver = new AutoCurver(csvFilePath, curveType, curveValue);
-        ArrayList<GradeRecord> records = this.curver.readCSV();
-        boolean validFormat = true;
-        for (int i = 0; i < records.size(); i++) {
-            if (records.get(i).getStudentID() == null || records.get(i).getStudentID().isEmpty() ||
-                    records.get(i).getClassCode() == null || records.get(i).getClassCode().isEmpty()) {
-                validFormat = false;
-                break;
-            }
-        }
-        if (validFormat) {
-            this.curver.applyCurve(records);
-            this.curver.saveCurvedGrades(records);
-            // Update gradeRecords
-            for (int i = 0; i < this.gradeRecords.size(); i++) {
-                for (int j = 0; j < records.size(); j++) {
-                    if (this.gradeRecords.get(i).getStudentID().equals(records.get(j).getStudentID()) &&
-                            this.gradeRecords.get(i).getClassCode().equals(records.get(j).getClassCode())) {
-                        this.gradeRecords.get(i).assignGrade(records.get(j).getGrade());
-                    }
+
+        this.curver.applyCurve(curvedRecords);
+        this.curver.saveCurvedGrades(curvedRecords);
+
+        // BUG FIX: Safely update the main gradeRecords list and recalculate GPAs.
+        for (GradeRecord curvedRecord : curvedRecords) {
+            // Update the grade in the central gradeRecords list
+            for (GradeRecord originalRecord : this.gradeRecords) {
+                if (originalRecord.getStudentID().equals(curvedRecord.getStudentID()) &&
+                        originalRecord.getClassCode().equals(curvedRecord.getClassCode())) {
+                    originalRecord.assignGrade(curvedRecord.getGrade());
+                    break;
                 }
             }
-        } else {
-            System.out.println("Error: Invalid CSV format");
+        }
+
+        // After all grades are updated, recalculate GPA for all affected students.
+        for (RegularStudent student : this.students) {
+            student.calculateGPA(this.gradeRecords);
         }
     }
 
+
     /**
-     * Generates a grade of all students and grades.
-     * @return string containing the grade
+     * Generates a report of all students and grades.
+     * @return string containing the report
      */
     public String generateReport() {
-        String report = "Student Management System Report\n";
-        report = report + "Total Enrollments: " + this.totalEnrollments + "\n";
-        report = report + "Students:\n";
-        for (int i = 0; i < this.students.size(); i++) {
-            report = report + this.students.get(i).getDetails() + ", GPA: " + this.students.get(i).getGpa() + "\n";
+        StringBuilder report = new StringBuilder("Student Management System Report\n");
+        report.append("====================================\n");
+        report.append("Total Enrollments: ").append(this.totalEnrollments).append("\n\n");
+        report.append("Students:\n");
+        report.append("---------\n");
+        for (RegularStudent student : this.students) {
+            report.append(student.getDetails())
+                    .append(String.format(", GPA: %.2f", student.getGPA()))
+                    .append("\n");
         }
-        report = report + "Grades:\n";
-        for (int i = 0; i < this.gradeRecords.size(); i++) {
-            report = report + "Student ID: " + this.gradeRecords.get(i).getStudentID() + ", Class: " +
-                    this.gradeRecords.get(i).getClassCode() + ", Grade: " + this.gradeRecords.get(i).getGrade() +
-                    ", Passing: " + this.gradeRecords.get(i).isPassing() + "\n";
+        report.append("\nGrades:\n");
+        report.append("-------\n");
+        for (GradeRecord record : this.gradeRecords) {
+            report.append("Student ID: ").append(record.getStudentID())
+                    .append(", Class: ").append(record.getClassCode())
+                    .append(String.format(", Grade: %.2f", record.getGrade()))
+                    .append(", Passing: ").append(record.isPassing() ? "Yes" : "No")
+                    .append("\n");
         }
-        return report;
+        report.append("====================================\n");
+        return report.toString();
     }
 
     /**
@@ -162,16 +152,11 @@ public class SystemManager {
      * @return string describing the system's status
      */
     public String checkSystemStatus() {
-        String statusString = "Checking System Status:\n";
-        statusString = statusString + "Students: " + this.students.size() + "\n";
-        statusString += "Classes: " + this.classes.size() + "\n";
-        statusString += "Grade Records: " + this.gradeRecords.size() + "\n";
-        statusString += "Total Enrollments: " + this.totalEnrollments + "\n";
-        return statusString;
-    }
-
-    // Update enrollments
-    public void incrementEnrollments() {
-        this.totalEnrollments = this.totalEnrollments + 1;
+        StringBuilder statusString = new StringBuilder("Checking System Status:\n");
+        statusString.append("Students: ").append(this.students.size()).append("\n");
+        statusString.append("Classes: ").append(this.classes.size()).append("\n");
+        statusString.append("Grade Records: ").append(this.gradeRecords.size()).append("\n");
+        statusString.append("Total Enrollments: ").append(this.totalEnrollments).append("\n");
+        return statusString.toString();
     }
 }

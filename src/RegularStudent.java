@@ -42,8 +42,32 @@ public class RegularStudent extends SchoolEntity {
      * Calculates the student's GPA based on grades (placeholder, updated via SystemManager).
      */
     public void calculateGPA() {
-        this.gpa = 0.0; // Updated via SystemManager
+        // The main calculation is now handled by the overloaded version
+        // to ensure the gpa is always calculated with the full grade history.
     }
+
+    /**
+     * Calculates the student's GPA based on a list of all grade records in the system.
+     * @param allGradeRecords A list of all grade records.
+     */
+    public void calculateGPA(ArrayList<GradeRecord> allGradeRecords) {
+        double totalPoints = 0;
+        int numGrades = 0;
+        for (GradeRecord record : allGradeRecords) {
+            if (record.getStudentID().equals(this.getId())) {
+                totalPoints += record.getGrade();
+                numGrades++;
+            }
+        }
+
+        if (numGrades > 0) {
+            // Standard GPA is on a 4.0 scale
+            this.gpa = (totalPoints / numGrades) * 4.0 / 100.0;
+        } else {
+            this.gpa = 0.0;
+        }
+    }
+
 
     /**
      * Returns the student's class schedule as a string.
@@ -63,7 +87,8 @@ public class RegularStudent extends SchoolEntity {
     }
 
     public double getGPA() {
-        return this.getGpa();
+        // BUG FIX: Was 'return this.getGPA()', causing a StackOverflowError.
+        return this.gpa;
     }
 
     public void setGpa(double gpa) {

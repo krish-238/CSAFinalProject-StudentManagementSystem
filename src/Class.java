@@ -36,12 +36,8 @@ public class Class {
      * @param student the student to add
      */
     public void addStudent(RegularStudent student) {
-        boolean alreadyEnrolled = false;
-        for (int i = 0; i < this.students.size(); i++) {
-            if (this.students.get(i).getId().equals(student.getId())) {
-                alreadyEnrolled = true;
-            }
-        }
+        // Using a stream for a concise check to see if the student is already enrolled.
+        boolean alreadyEnrolled = this.students.stream().anyMatch(s -> s.getId().equals(student.getId()));
         if (!alreadyEnrolled) {
             this.students.add(student);
         }
@@ -60,12 +56,28 @@ public class Class {
      * @return string containing class details
      */
     public String getClassInfo() {
-        String info = this.className + " (" + this.classCode + "), Teacher: " + this.getTeacher() + ", Period: " + this.period;
-        return info;
+        return this.className + " (" + this.classCode + "), Teacher: " + this.getTeacher() + ", Period: " + this.period;
     }
 
     // Getters
     public String getClassCode() {
         return this.classCode;
+    }
+
+    public String getClassName() {
+        return this.className;
+    }
+
+    public String getTeacher() {
+        // BUG FIX: Added missing getter for the teacher field.
+        return this.teacher;
+    }
+
+    public int getPeriod() {
+        return this.period;
+    }
+
+    public ArrayList<RegularStudent> getStudents() {
+        return this.students;
     }
 }

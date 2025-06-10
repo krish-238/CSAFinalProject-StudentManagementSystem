@@ -18,6 +18,7 @@ public class GradeRecord implements Grade {
     public GradeRecord(String studentID, String classCode, double grade) {
         this.studentID = studentID;
         this.classCode = classCode;
+        // Ensure grade is within the valid range on creation
         this.grade = (grade >= 0.0 && grade <= 100.0) ? grade : 0.0;
     }
 
@@ -48,7 +49,8 @@ public class GradeRecord implements Grade {
     }
 
     // Getters
-    public String getID() {
+    public String getStudentID() {
+        // BUG FIX: Renamed from getID() to getStudentID() for clarity and consistency.
         return this.studentID;
     }
 
