@@ -3,7 +3,7 @@
  *
  * Period 1
  * APCSA - Final Project - Student Management System - Regular Student Class
- * 05/31/2025
+ * 06/11/2025
  *
  * The RegularStudent class represents a standard high school student in the student management
  * system, managing their enrollment, grades, and GPA. It provides methods to enroll in classes,
@@ -68,7 +68,6 @@ public class RegularStudent extends SchoolEntity {
         }
     }
 
-
     /**
      * Returns the student's class schedule as a string.
      * @return string listing enrolled classes
@@ -81,20 +80,44 @@ public class RegularStudent extends SchoolEntity {
         return schedule;
     }
 
-    // Getters and setters
+    /**
+     * Gets the student's grade level.
+     * @return The grade level.
+     */
     public int getGradeLevel() {
         return this.gradeLevel;
     }
 
+    /**
+     * Sets the student's grade level.
+     * @param gradeLevel The new grade level.
+     */
+    public void setGradeLevel(int gradeLevel) {
+        if (gradeLevel >= 1 && gradeLevel <= 12) {
+            this.gradeLevel = gradeLevel;
+        }
+    }
+
+    /**
+     * Gets the student's GPA.
+     * @return The student's current GPA.
+     */
     public double getGPA() {
-        // BUG FIX: Was 'return this.getGPA()', causing a StackOverflowError.
         return this.gpa;
     }
 
+    /**
+     * Sets the student's GPA.
+     * @param gpa The new GPA value.
+     */
     public void setGpa(double gpa) {
         this.gpa = gpa;
     }
 
+    /**
+     * Gets the list of classes the student is enrolled in.
+     * @return An ArrayList of Class objects.
+     */
     public ArrayList<Class> getClasses() {
         return this.classes;
     }

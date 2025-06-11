@@ -3,12 +3,13 @@
  *
  * Period 1
  * APCSA - Final Project - Student Management System - AP Student Class
- * 06/03/2025
+ * 06/11/2025
  *
  * The APStudent class extends RegularStudent to represent an AP student in the student management
  * system, handling weighted GPAs and AP course points. It supports advanced academic tracking
  * with methods for calculating weighted GPAs and adding AP points.
  */
+
 import java.util.ArrayList;
 
 /**
@@ -16,7 +17,6 @@ import java.util.ArrayList;
  */
 public class APStudent extends RegularStudent {
     private int apPoints;
-    // BUG FIX: Removed redundant 'gpa' field which shadowed the parent's field.
 
     public APStudent(String id, String name, int gradeLevel) {
         super(id, name, gradeLevel);
@@ -54,7 +54,6 @@ public class APStudent extends RegularStudent {
         }
     }
 
-
     /**
      * Adds AP points for completed AP courses.
      * @param points the points to add
@@ -65,7 +64,10 @@ public class APStudent extends RegularStudent {
         }
     }
 
-    // Getters and setters
+    /**
+     * Gets the student's accumulated AP points.
+     * @return The total AP points.
+     */
     public int getAPPoints() {
         return this.apPoints;
     }

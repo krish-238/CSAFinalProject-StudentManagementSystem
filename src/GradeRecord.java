@@ -2,8 +2,8 @@
  * Krish Senthil
  *
  * Period 1
- * APCSA - Final Project - Student Management System - Grade Record Abstract Class
- * 06/03/2025
+ * APCSA - Final Project - Student Management System - Grade Record Class
+ * 06/11/2025
  *
  * The GradeRecord class implements the Grade interface to store a student’s grade for a specific
  * class in the student management system. It manages grade assignment, retrieval, and passing
@@ -18,7 +18,6 @@ public class GradeRecord implements Grade {
     public GradeRecord(String studentID, String classCode, double grade) {
         this.studentID = studentID;
         this.classCode = classCode;
-        // Ensure grade is within the valid range on creation
         this.grade = (grade >= 0.0 && grade <= 100.0) ? grade : 0.0;
     }
 
@@ -48,12 +47,18 @@ public class GradeRecord implements Grade {
         return this.grade >= 70.0;
     }
 
-    // Getters
+    /**
+     * Gets the student ID associated with this grade record.
+     * @return The student ID.
+     */
     public String getStudentID() {
-        // BUG FIX: Renamed from getID() to getStudentID() for clarity and consistency.
         return this.studentID;
     }
 
+    /**
+     * Gets the class code associated with this grade record.
+     * @return The class code.
+     */
     public String getClassCode() {
         return this.classCode;
     }

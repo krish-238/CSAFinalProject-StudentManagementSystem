@@ -3,7 +3,7 @@
  *
  * Period 1
  * APCSA - Final Project - Student Management System - SystemEntity Abstract Class
- * 05/28/2025
+ * 06/11/2025
  *
  * The SchoolEntity class is the abstract base class for entities in the student management system,
  * defining common attributes like ID and name. It provides common methods for all entities,
@@ -52,12 +52,29 @@ public abstract class SchoolEntity {
         return this.isActive;
     }
 
-    // Getters for subclasses
+    /**
+     * Gets the entity's ID.
+     * @return The ID of the entity.
+     */
     public String getId() {
         return this.id;
     }
 
+    /**
+     * Gets the entity's name.
+     * @return The name of the entity.
+     */
     public String getName() {
         return this.name;
+    }
+
+    /**
+     * Sets the entity's name.
+     * @param name The new name for the entity.
+     */
+    public void setName(String name) {
+        if (name != null && !name.trim().isEmpty()) {
+            this.name = name;
+        }
     }
 }

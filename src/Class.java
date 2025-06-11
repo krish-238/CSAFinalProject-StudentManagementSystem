@@ -3,7 +3,7 @@
  *
  * Period 1
  * APCSA - Final Project - Student Management System - Class/Course Class
- * 05/30/2025
+ * 06/11/2025
  *
  * The Class class represents a high school course in the student management system, storing course
  * details and managing student rosters. It provides methods to add or remove students and retrieve
@@ -36,7 +36,6 @@ public class Class {
      * @param student the student to add
      */
     public void addStudent(RegularStudent student) {
-        // Using a stream for a concise check to see if the student is already enrolled.
         boolean alreadyEnrolled = this.students.stream().anyMatch(s -> s.getId().equals(student.getId()));
         if (!alreadyEnrolled) {
             this.students.add(student);
@@ -56,27 +55,45 @@ public class Class {
      * @return string containing class details
      */
     public String getClassInfo() {
-        return this.className + " (" + this.classCode + "), Teacher: " + this.getTeacher() + ", Period: " + this.period;
+        return this.className + " (" + this.classCode + "), Teacher: " + this.teacher + ", Period: " + this.period;
     }
 
-    // Getters
+    /**
+     * Gets the class code.
+     * @return The class code.
+     */
     public String getClassCode() {
         return this.classCode;
     }
 
+    /**
+     * Gets the class name.
+     * @return The class name.
+     */
     public String getClassName() {
         return this.className;
     }
 
+    /**
+     * Gets the teacher's name.
+     * @return The name of the teacher.
+     */
     public String getTeacher() {
-        // BUG FIX: Added missing getter for the teacher field.
         return this.teacher;
     }
 
+    /**
+     * Gets the class period.
+     * @return The period number.
+     */
     public int getPeriod() {
         return this.period;
     }
 
+    /**
+     * Gets the list of students enrolled in the class.
+     * @return An ArrayList of RegularStudent objects.
+     */
     public ArrayList<RegularStudent> getStudents() {
         return this.students;
     }
