@@ -12,9 +12,7 @@
 
 import java.util.ArrayList;
 
-/**
- * Represents a regular high school student, inheriting from SchoolEntity.
- */
+// Represents a regular high school student, inheriting from SchoolEntity
 public class RegularStudent extends SchoolEntity {
     private int gradeLevel;
     private double gpa;
@@ -39,7 +37,8 @@ public class RegularStudent extends SchoolEntity {
     }
 
     /**
-     * Calculates the student's GPA based on grades (placeholder, updated via SystemManager).
+     * Calculates the student's GPA based on grades. This method is a placeholder,
+     * as the main calculation is handled by the overloaded version with parameters.
      */
     public void calculateGPA() {
         // The main calculation is now handled by the overloaded version

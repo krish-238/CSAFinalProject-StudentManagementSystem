@@ -5,8 +5,9 @@
  * APCSA - Final Project - Student Management System - Assignment Score Class
  * 06/11/2025
  *
- * This class represents a single student's score on an assignment, for the grade curving utility.
- * It holds the student's ID, original score, and the calculated curved score.
+ * This class represents a single student's score on an assignment, designed for
+ * the standalone grade curving utility. It holds the student's ID, original score,
+ * and the calculated curved score.
  */
 
 public class AssignmentScore {

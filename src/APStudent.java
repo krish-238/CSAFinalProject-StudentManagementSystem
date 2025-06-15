@@ -12,9 +12,7 @@
 
 import java.util.ArrayList;
 
-/**
- * Represents an AP student, extending RegularStudent with AP-specific AP features.
- */
+// Represents an AP student, extending RegularStudent
 public class APStudent extends RegularStudent {
     private int apPoints;
 
@@ -24,7 +22,8 @@ public class APStudent extends RegularStudent {
     }
 
     /**
-     * Calculates the weighted GPA for AP courses (placeholder).
+     * Calculates the weighted GPA for AP courses. This method is a placeholder,
+     * as the main calculation is handled by the overloaded version with parameters.
      */
     @Override
     public void calculateGPA() {

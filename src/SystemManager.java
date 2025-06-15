@@ -55,7 +55,6 @@ public class SystemManager {
 
     /**
      * Removes a student from the system.
-     * This also removes them from all classes and deletes their grade records.
      * @param studentId The ID of the student to remove.
      * @return true if the student was found and removed, false otherwise.
      */
@@ -134,7 +133,6 @@ public class SystemManager {
 
     /**
      * Imports students and their class/grade data from a complex CSV file.
-     * Reads a variable number of columns to enroll students in multiple classes.
      * @param filePath The path to the student CSV file.
      */
     public void importStudentsFromCSV(String filePath) {

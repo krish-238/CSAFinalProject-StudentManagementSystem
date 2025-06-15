@@ -5,20 +5,21 @@
  * APCSA - Final Project - Student Management System - Main Class
  * 06/11/2025
  *
- * The Main class provides an interactive command-line interface (CLI) to manage the system.
- * It allows users to import/export data, manage students, and view reports. The grade
- * curving functionality is now a separate, standalone tool (GradeCurverMain.java).
+ * The Main class provides a unified, interactive command-line interface (CLI) to manage the system.
+ * It allows users to manage students, import/export data, view reports, and use a standalone
+ * tool to curve grades for a single assignment from a CSV file.
  */
 
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.InputMismatchException;
 import java.util.Optional;
+import java.util.Scanner;
 
 public class Main {
     private static SystemManager manager = new SystemManager();
     private static Scanner scanner = new Scanner(System.in);
 
+    // The main menu for the application
     public static void main(String[] args) {
         System.out.println("Welcome to the Student Management System!");
 
@@ -33,13 +34,15 @@ public class Main {
             } else if (choice == 3) {
                 exportStudentsCSV();
             } else if (choice == 4) {
-                System.out.println(manager.generateReport());
+                handleAssignmentCurving();
             } else if (choice == 5) {
+                System.out.println(manager.generateReport());
+            } else if (choice == 6) {
                 System.out.println("Exiting system. Goodbye!");
                 scanner.close();
                 return;
             } else {
-                System.out.println("Invalid choice. Please enter a number between 1 and 5.");
+                System.out.println("Invalid choice. Please enter a number between 1 and 6.");
             }
 
             System.out.println("\nPress Enter to continue...");
@@ -47,21 +50,24 @@ public class Main {
         }
     }
 
+    // Prints the main menu options to the console
     private static void printMainMenu() {
         System.out.println("\n--- Main Menu ---");
-        System.out.println("1. Manage Students");
-        System.out.println("2. Import Students from CSV");
-        System.out.println("3. Export Students to CSV");
-        System.out.println("4. Generate System Report");
-        System.out.println("5. Exit");
+        System.out.println("1. Manage Students (View, Add, Edit, Remove)");
+        System.out.println("2. Import Students & Grades from CSV");
+        System.out.println("3. Export Student Roster to CSV");
+        System.out.println("4. Curve Assignment Grades (Standalone Tool)");
+        System.out.println("5. Generate Full System Report");
+        System.out.println("6. Exit");
         System.out.print("Enter your choice: ");
     }
 
+    // Displays the student management sub-menu and handles user input for it
     private static void handleStudentManagement() {
         while (true) {
             System.out.println("\n--- Student Management ---");
-            System.out.println("1. View Student Details");
-            System.out.println("2. Add New Student");
+            System.out.println("1. View Student Details & Grades");
+            System.out.println("2. Add New Student Manually");
             System.out.println("3. Edit Existing Student");
             System.out.println("4. Remove Student");
             System.out.println("5. Back to Main Menu");
@@ -84,6 +90,7 @@ public class Main {
         }
     }
 
+    // Handles the logic for viewing a specific student's details and grades.
     private static void viewStudentDetails() {
         ArrayList<RegularStudent> students = manager.getStudents();
         if (students.isEmpty()) {
@@ -123,6 +130,7 @@ public class Main {
         System.out.println("--------------------------------------------------");
     }
 
+    // Handles the logic for adding a new student to the system via console input
     private static void addStudentManually() {
         System.out.print("Enter Student ID: ");
         String id = scanner.nextLine();
@@ -145,6 +153,7 @@ public class Main {
         System.out.println("Student added successfully!");
     }
 
+    // Handles the logic for editing an existing student's details
     private static void editStudent() {
         System.out.print("Enter the ID of the student to edit: ");
         String id = scanner.nextLine();
@@ -165,6 +174,7 @@ public class Main {
         }
     }
 
+    // Handles the logic for removing a student from the system
     private static void removeStudent() {
         System.out.print("Enter the ID of the student to remove: ");
         String id = scanner.nextLine();
@@ -175,18 +185,92 @@ public class Main {
         }
     }
 
+    // Handles the logic for importing students from a CSV file
     private static void importStudentsCSV() {
-        System.out.print("Enter the file path for the student CSV to import: ");
+        System.out.print("Enter the path to the CSV file to import student data from: ");
         String path = scanner.nextLine();
         manager.importStudentsFromCSV(path);
     }
 
+    // Handles the logic for exporting students to a CSV file
     private static void exportStudentsCSV() {
-        System.out.print("Enter the file path to export the student CSV to (e.g., export.csv): ");
+        System.out.print("Enter the file path to export the student roster to (e.g., export.csv): ");
         String path = scanner.nextLine();
         manager.exportStudentsToCSV(path);
     }
 
+    // Handles logic for the assignment curving tool
+    private static void handleAssignmentCurving() {
+        AutoCurver curver = new AutoCurver();
+
+        System.out.println("\n--- Standalone Assignment Grade Curver ---");
+        System.out.print("Enter the path to the input CSV with scores (Format: StudentID,Score): ");
+        String inputFile = scanner.nextLine();
+
+        System.out.print("Enter the path for the new output file (e.g., curved_scores.csv): ");
+        String outputFile = scanner.nextLine();
+
+        printCurveDescriptions();
+
+        System.out.print("Enter the curve type from the list above: ");
+        String curveType = scanner.nextLine().trim().toLowerCase();
+
+        double curveValue = 0.0;
+        if (curveType.equals("flat") || curveType.equals("stddev") || curveType.equals("power")) {
+            System.out.print("Enter the required numeric value for this curve: ");
+            try {
+                curveValue = scanner.nextDouble();
+                scanner.nextLine();
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid number. Using 0.0 for curve value.");
+                scanner.nextLine();
+            }
+        }
+
+        System.out.println("\nReading scores...");
+        ArrayList<AssignmentScore> scores = curver.readScores(inputFile);
+
+        if (!scores.isEmpty()) {
+            System.out.println("Applying " + curveType + " curve...");
+            curver.applyCurve(scores, curveType, curveValue);
+
+            System.out.println("Saving curved scores...");
+            curver.saveCurvedScores(scores, outputFile);
+
+            System.out.println("\nProcess complete! Curved scores have been saved to: " + outputFile);
+        } else {
+            System.out.println("\nCould not process scores. Please check the input file and try again.");
+        }
+    }
+
+    // Prints a detailed description of all available curve types
+    private static void printCurveDescriptions() {
+        System.out.println("\n--- Available Curve Types ---");
+        System.out.println("  flat    : Adds a fixed number of points to every score.");
+        System.out.println("            -> Value: The number of points to add (e.g., 5).");
+        System.out.println("  sqrt    : Takes the square root of the score and multiplies by 10.");
+        System.out.println("            -> No value needed.");
+        System.out.println("  log     : Applies a logarithmic curve to compress higher scores.");
+        System.out.println("            -> No value needed.");
+        System.out.println("  exp     : Applies an exponential curve to boost lower scores more significantly.");
+        System.out.println("            -> No value needed.");
+        System.out.println("  power   : Raises the normalized score (0-1) to a given power.");
+        System.out.println("            -> Value: The exponent to use (e.g., 0.5 to boost scores).");
+        System.out.println("  sigmoid : A smooth 'S'-shaped curve that boosts scores around the midpoint (50).");
+        System.out.println("            -> No value needed.");
+        System.out.println("  z-score : Standardizes scores and rescales them to a target mean and standard deviation.");
+        System.out.println("            -> No value needed (uses default mean 75, stddev 10).");
+        System.out.println("  stddev  : Shifts all scores to achieve a new target mean score.");
+        System.out.println("            -> Value: The desired average score for the class (e.g., 85).");
+        System.out.println("  ratio   : Assigns letter grades based on a fixed percentage distribution (e.g., top 10% get an A).");
+        System.out.println("            -> No value needed.");
+        System.out.println("-----------------------------\n");
+    }
+
+    /**
+     * Gets the user's integer menu choice.
+     * @return The user's choice, or -1 if the input is invalid.
+     */
     private static int getUserChoice() {
         try {
             int choice = scanner.nextInt();
@@ -198,6 +282,10 @@ public class Main {
         }
     }
 
+    /**
+     * Gets an integer input from the user, retrying until valid input is given.
+     * @return The valid integer input from the user.
+     */
     private static int getIntInput() {
         while (true) {
             try {

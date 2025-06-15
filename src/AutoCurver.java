@@ -2,12 +2,12 @@
  * Krish Senthil
  *
  * Period 1
- * APCSA - Final Project - Student Management System - Auto Curver Class (Standalone)
+ * APCSA - Final Project - Student Management System - Auto Curver Class
  * 06/11/2025
  *
- * The AutoCurver class is a standalone utility to process grade curving for a single
+ * The AutoCurver class is a utility to process grade curving for a single
  * assignment. It reads student scores from a CSV, applies a specified curve,
- * and saves the results to a new CSV file. It contains all 9 original curve types.
+ * and saves the results to a new CSV file. It contains 9 different curve types.
  */
 
 import java.io.BufferedReader;
@@ -20,9 +20,7 @@ import java.util.Comparator;
 
 public class AutoCurver {
 
-    /**
-     * Constructs a new AutoCurver object.
-     */
+    // Constructs a new AutoCurver object
     public AutoCurver() {}
 
     /**
@@ -81,6 +79,12 @@ public class AutoCurver {
         }
     }
 
+    /**
+     * A private helper method to apply standard deviation or z-score curves.
+     * @param scores The list of scores.
+     * @param curveType The specific curve type ("stddev" or "zscore").
+     * @param curveValue The target mean for the "stddev" curve.
+     */
     private void applyStandardDeviationCurves(ArrayList<AssignmentScore> scores, String curveType, double curveValue) {
         double sum = 0.0;
         for (AssignmentScore s : scores) sum += s.getOriginalScore();
@@ -108,6 +112,10 @@ public class AutoCurver {
         }
     }
 
+    /**
+     * A private helper method to apply a ratio-based curve.
+     * @param scores The list of scores.
+     */
     private void applyRatioCurve(ArrayList<AssignmentScore> scores) {
         ArrayList<AssignmentScore> sortedScores = new ArrayList<>(scores);
         sortedScores.sort(Comparator.comparingDouble(AssignmentScore::getOriginalScore).reversed());

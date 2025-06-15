@@ -10,9 +10,7 @@
  * reducing code duplication across students and other entities.
  */
 
-/**
- * Abstract base class for all entities in the system, providing common attributes and methods.
- */
+// Abstract base class for all entities/types of students in system
 public abstract class SchoolEntity {
     private String id;
     private String name;
